@@ -1,1 +1,137 @@
-вавав
+function placementCleaner() {
+
+	const accountIterator = AdsApp.currentAccount();
+	var shortstat = [];
+  
+
+	const accountId = AdsApp.currentAccount().getCustomerId();
+  
+	var accountName = "--";
+  try {
+    accountName = AdsApp.currentAccount().getName();
+  } catch (e){
+    accountName = "--";
+  }
+
+  const accountCurrency = AdsApp.currentAccount().getCurrencyCode();
+  
+	const campaignIterator = AdsApp.campaigns().get();
+	const today_date = Utilities.formatDate(new Date(), "GMT+3", "yyyyMMdd");
+	const statdate = Utilities.formatDate(new Date(), "GMT+3", "yyyy-MM-dd");
+  
+	while (campaignIterator.hasNext()) {
+		const campaign = campaignIterator.next();
+		const data = {};
+    
+		//data['account_name'] = accountName;
+		//data['account_id'] = accountId;
+    //data['valute'] = accountCurrency;
+		data['campaign_name'] = campaign.getName();
+		data['campaign_id'] = campaign.getId();
+		data['is_enabl'] = campaign.isEnabled();
+		const getstat = campaign.getStatsFor(today_date, today_date);
+		data['impressions'] = getstat.getImpressions();
+		data['clicks'] = getstat.getClicks();
+		data['cost'] = getstat.getCost();
+    
+data['AverageCpc'] = getstat.getAverageCpc();
+data['AverageCpm'] = getstat.getAverageCpm();
+data['AverageCpv'] = getstat.getAverageCpv();
+data['AveragePageviews'] = getstat.getAveragePageviews();
+data['AveragePosition'] = getstat.getAveragePosition();
+data['AverageTimeOnSite'] = getstat.getAverageTimeOnSite();
+data['BounceRate'] = getstat.getBounceRate();
+
+data['ConversionRate'] = getstat.getConversionRate();
+data['Conversions'] = getstat.getConversions();
+
+data['Ctr'] = getstat.getCtr();
+data['ViewRate'] = getstat.getViewRate();
+//data['getViews'] = getstat.getstat.getViews;
+    
+
+		//Logger.log(data);
+		shortstat.push(data);
+	}
+  
+  shortstat.statsdate = 'statdate';
+
+  var shortstat_jsn = JSON.stringify({ 
+    'stats_data':shortstat,
+    'stats_date':statdate,
+    'account_id':accountId,
+    'account_name':accountName,
+    'valute':accountCurrency
+
+  });
+
+  SendStat("daily_short_stat", shortstat_jsn);
+  
+	Logger.log(shortstat_jsn);
+	//Logger.log(shortstat);
+  
+  GetKeyStat();
+  
+}
+
+
+
+
+function GetKeyStat() {
+  
+  // https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_stats.
+
+  const adGroupIterator = AdsApp.adGroups().get();
+
+  const adGroup = adGroupIterator.next();
+  const key_stat = [];
+  
+
+  
+  
+  for (const keyword of adGroup.keywords()) {
+    let stats = keyword.getStatsFor('LAST_MONTH');
+    
+    const data = {};
+    data['adGroup_Name'] = adGroup.getName();
+    
+    var adsIterator = adGroup.ads().get;
+    Logger.log(adsIterator);
+    
+    //getDisplayUrl
+    //data['adGroup_url'] = adGroup.getFinalUrlSuffix();
+    //data['keyword'] = keyword.getText();
+    //data['keywordClicks'] = stats.getClicks();
+    //data['keywordimpressions'] = stats.getImpressions();
+		//data['keywordcost'] = stats.getCost();
+
+    key_stat.push(data);
+
+  }
+  
+  var stat_jsn = JSON.stringify(key_stat);
+  Logger.log(stat_jsn);
+  //SendStat("daily_key_stat", stat_jsn);
+}
+
+
+
+function SendStat(name, data) {
+  
+	var formData = {
+	'action': name,
+	'data': data,
+	};
+
+	var options = {
+	'method' : 'post',
+	'payload' : formData
+	};
+  
+	UrlFetchApp.fetch('http://gglapi.ebsh.top/adsscriptget.php', options);
+
+}
+
+
+
+
