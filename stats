@@ -65,12 +65,12 @@ data['ViewRate'] = getstat.getViewRate();
 
   });
 
-  SendStat("daily_short_stat", shortstat_jsn);
+  SendStat("daily_short_stat-git", shortstat_jsn);
   
 	Logger.log(shortstat_jsn);
 	//Logger.log(shortstat);
   
-  GetKeyStat();
+  //GetKeyStat();
   
 }
 
