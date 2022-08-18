@@ -1,4 +1,4 @@
-function placementCleaner() {
+function scrstart() {
 
 	const accountIterator = AdsApp.currentAccount();
 	var shortstat = [];
