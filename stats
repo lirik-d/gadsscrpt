@@ -117,7 +117,7 @@ function GetAdStat(base_data) {
     ads_data['conv'] = getstat.getConversions();
     //ads_data['ctr'] = getstat.getCtr();
 
-     //Logger.log(ads_data);
+   Logger.log(ads_data);
    ads_stat.push(ads_data);
    
   }
