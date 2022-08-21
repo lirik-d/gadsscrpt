@@ -128,8 +128,8 @@ function GetAdStat(base_data) {
     'stats_data':ads_stat,
   });
 
-  Logger.log(adsstat_jsn);
-  //SendStat("daily_ads_stat", adsstat_jsn);
+  //Logger.log(adsstat_jsn);
+  SendStat("daily_ads_stat", adsstat_jsn);
 
 }
 
