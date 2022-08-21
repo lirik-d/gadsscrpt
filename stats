@@ -96,6 +96,7 @@ function GetAdStat(base_data) {
   
   
   while (adsIterator.hasNext()) {
+    
 		const ads = adsIterator.next();
 		const ads_data = {};  
     
@@ -111,14 +112,23 @@ function GetAdStat(base_data) {
     
     var getstat = ads.getStatsFor(today_date,today_date);
     
-    ads_data['impressions'] = getstat.getImpressions();
-		ads_data['clicks'] = getstat.getClicks();
-		ads_data['cost'] = getstat.getCost();
+    var impressions = getstat.getImpressions();
+    ads_data['impressions'] = impressions;
+    
+    var clicks = getstat.getClicks();
+		ads_data['clicks'] = clicks;
+    
+    var cost = getstat.getCost();
+		ads_data['cost'] = cost
+    
     ads_data['conv'] = getstat.getConversions();
     //ads_data['ctr'] = getstat.getCtr();
 
+    if( impressions >= 1 || clicks >= 1 || cost >= 0.01 ){
+      ads_stat.push(ads_data);
+    }
+    
    //Logger.log(ads_data);
-   ads_stat.push(ads_data);
    
   }
   
