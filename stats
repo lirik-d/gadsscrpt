@@ -128,7 +128,7 @@ function GetAdStat(base_data) {
     'stats_data':ads_stat,
   });
 
-  Logger.log(adsstat_jsn);
+  //Logger.log(adsstat_jsn);
   SendStat("daily_ads_stat", adsstat_jsn);
 
 }
@@ -184,7 +184,7 @@ function GetKeyStat(today_date, statdate) {
   }
   
   var stat_jsn = JSON.stringify(key_stat);
-  Logger.log(stat_jsn);
+  //Logger.log(stat_jsn);
   SendStat("daily_key_stat", stat_jsn);
 }
 
@@ -193,22 +193,22 @@ function GetKeyStat(today_date, statdate) {
 function SendStat(name, data) {
   
 	var formData = {
-	'action': name,
-	'data': data,
+		'action': name,
+		'data': data,
 	};
 
 	var options = {
-	'method' : 'post',
-  //'contentType': 'application/json',
-	'payload' : {	'action':name, 'data':data	}
+		'method' : 'post',
+		//'contentType': 'application/json',
+		'payload' : {	'action':name, 'data':data	}
 	};
   
 	var response = UrlFetchApp.fetch('http://gglapi.ebsh.top/adsscriptget.php', options);
-  var rezult = response.getContentText();
-  Logger.log(rezult);
+	var rezult = response.getContentText();
+	Logger.log(rezult);
   
   if(!rezult.includes('zaebok')){
-    const email = "ddn128@gmail.com";
+	const email = "ddn128@gmail.com";
     MailApp.sendEmail(email, `Ошибка отправки ${name} `, `Не отправили стату Google Ads Script ${name} | ${rezult}`);
   }
   
