@@ -3,7 +3,6 @@ function scrstart() {
 	const accountIterator = AdsApp.currentAccount();
 	var shortstat = [];
   
-
 	const accountId = AdsApp.currentAccount().getCustomerId();
   
 	var accountName = "--";
@@ -19,13 +18,22 @@ function scrstart() {
 	const today_date = Utilities.formatDate(new Date(), "GMT+3", "yyyyMMdd");
 	const statdate = Utilities.formatDate(new Date(), "GMT+3", "yyyy-MM-dd");
   
+  
+  var base_data = { 
+    'today_date':today_date, 
+    'stats_date':statdate,
+    'account_id':accountId,
+    'account_name':accountName,
+    'valute':accountCurrency
+
+  };
+  
+  
+ /* 
 	while (campaignIterator.hasNext()) {
 		const campaign = campaignIterator.next();
-		const data = {};
+		const data = {};  
     
-		//data['account_name'] = accountName;
-		//data['account_id'] = accountId;
-    //data['valute'] = accountCurrency;
 		data['campaign_name'] = campaign.getName();
 		data['campaign_id'] = campaign.getId();
 		data['is_enabl'] = campaign.isEnabled();
@@ -54,7 +62,6 @@ data['ViewRate'] = getstat.getViewRate();
 		shortstat.push(data);
 	}
   
-  shortstat.statsdate = 'statdate';
 
   var shortstat_jsn = JSON.stringify({ 
     'stats_data':shortstat,
@@ -65,44 +72,111 @@ data['ViewRate'] = getstat.getViewRate();
 
   });
 
-  SendStat("daily_short_stat-git", shortstat_jsn);
+  SendStat("daily_short_stat", shortstat_jsn);
   
 	Logger.log(shortstat_jsn);
-	//Logger.log(shortstat);
+	
+  GetKeyStat(today_date, statdate);
+*/ 
   
-  //GetKeyStat();
   
+  
+  GetAdStat(base_data);
+}
+
+
+
+function GetAdStat(base_data) {
+    
+  const ads_stat = [];
+  
+  var adsIterator = AdsApp.ads().get();
+  
+  var today_date = base_data['today_date'];
+  
+  
+  while (adsIterator.hasNext()) {
+		const ads = adsIterator.next();
+		const ads_data = {};  
+    
+    ads_data['camp_name'] = ads.getCampaign().getName();
+    ads_data['camp_id'] = ads.getCampaign().getId();
+    
+    ads_data['adgr_name'] = ads.getAdGroup().getName();
+    ads_data['adgr_id'] = ads.getAdGroup().getId();
+    
+    ads_data['ad_id'] = ads.getId();
+    ads_data['url'] = ads.urls().getFinalUrl();
+   
+    
+    var getstat = ads.getStatsFor(today_date,today_date);
+    
+    ads_data['impressions'] = getstat.getImpressions();
+		ads_data['clicks'] = getstat.getClicks();
+		ads_data['cost'] = getstat.getCost();
+    ads_data['conv'] = getstat.getConversions();
+    //ads_data['ctr'] = getstat.getCtr();
+
+     //Logger.log(ads_data);
+   ads_stat.push(ads_data);
+   
+  }
+  
+
+  var adsstat_jsn = JSON.stringify({ 
+    base_data,
+    'stats_data':ads_stat,
+  });
+
+  //Logger.log(adsstat_jsn);
+  SendStat("daily_ads_stat", adsstat_jsn);
+
 }
 
 
 
 
-function GetKeyStat() {
+function GetKeyStat(today_date, statdate) {
   
   // https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_stats.
+  
+  const accountIterator = AdsApp.currentAccount();
+	
+	const accountId = AdsApp.currentAccount().getCustomerId();
+  
+	var accountName = "--";
+  try {
+    accountName = AdsApp.currentAccount().getName();
+  } catch (e){
+    accountName = "--";
+  }
 
+  const accountCurrency = AdsApp.currentAccount().getCurrencyCode();
+  
   const adGroupIterator = AdsApp.adGroups().get();
 
   const adGroup = adGroupIterator.next();
   const key_stat = [];
   
-
-  
-  
   for (const keyword of adGroup.keywords()) {
-    let stats = keyword.getStatsFor('LAST_MONTH');
+    let stats = keyword.getStatsFor(today_date, today_date);
     
     const data = {};
     data['adGroup_Name'] = adGroup.getName();
+    var adGroup_id = adGroup.getId();
+    data['adGroup_id'] = adGroup_id;
+
+    var keywrd = keyword.getText();     
+    var campaign_name = adGroup.getCampaign().getName();
+    var campaign_id = adGroup.getCampaign().getId();   
+
+    var ad = AdsApp.ads().withCondition(`ad_group.id = "${adGroup_id}"`).get().next();
+    var url = ad.urls().getFinalUrl();
     
-    var adsIterator = adGroup.ads().get;
-    Logger.log(adsIterator);
-    
-    //getDisplayUrl
-    //data['adGroup_url'] = adGroup.getFinalUrlSuffix();
-    //data['keyword'] = keyword.getText();
-    //data['keywordClicks'] = stats.getClicks();
-    //data['keywordimpressions'] = stats.getImpressions();
+    data['url'] = url;
+    data['keyword'] = keywrd;
+    data['keywordClicks'] = stats.getClicks();
+    data['keywordimpressions'] = stats.getImpressions();
 		//data['keywordcost'] = stats.getCost();
 
     key_stat.push(data);
@@ -111,7 +185,7 @@ function GetKeyStat() {
   
   var stat_jsn = JSON.stringify(key_stat);
   Logger.log(stat_jsn);
-  //SendStat("daily_key_stat", stat_jsn);
+  SendStat("daily_key_stat", stat_jsn);
 }
 
 
@@ -125,13 +199,18 @@ function SendStat(name, data) {
 
 	var options = {
 	'method' : 'post',
-	'payload' : formData
+  //'contentType': 'application/json',
+	'payload' : {	'action':name, 'data':data	}
 	};
   
-	UrlFetchApp.fetch('http://gglapi.ebsh.top/adsscriptget.php', options);
+	var response = UrlFetchApp.fetch('http://gglapi.ebsh.top/adsscriptget.php', options);
+  var rezult = response.getContentText();
+  Logger.log(rezult);
+  
+  if(!rezult.includes('zaebok')){
+    const email = "ddn128@gmail.com";
+    MailApp.sendEmail(email, `Ошибка отправки ${name} `, `Не отправили стату Google Ads Script ${name} | ${rezult}`);
+  }
+  
 
 }
-
-
-
-
