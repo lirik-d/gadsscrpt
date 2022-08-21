@@ -18,7 +18,6 @@ function scrstart() {
 	const today_date = Utilities.formatDate(new Date(), "GMT+3", "yyyyMMdd");
 	const statdate = Utilities.formatDate(new Date(), "GMT+3", "yyyy-MM-dd");
   
-  
   var base_data = { 
     'today_date':today_date, 
     'stats_date':statdate,
@@ -27,60 +26,7 @@ function scrstart() {
     'valute':accountCurrency
 
   };
-  
-  
- /* 
-	while (campaignIterator.hasNext()) {
-		const campaign = campaignIterator.next();
-		const data = {};  
     
-		data['campaign_name'] = campaign.getName();
-		data['campaign_id'] = campaign.getId();
-		data['is_enabl'] = campaign.isEnabled();
-		const getstat = campaign.getStatsFor(today_date, today_date);
-		data['impressions'] = getstat.getImpressions();
-		data['clicks'] = getstat.getClicks();
-		data['cost'] = getstat.getCost();
-    
-data['AverageCpc'] = getstat.getAverageCpc();
-data['AverageCpm'] = getstat.getAverageCpm();
-data['AverageCpv'] = getstat.getAverageCpv();
-data['AveragePageviews'] = getstat.getAveragePageviews();
-data['AveragePosition'] = getstat.getAveragePosition();
-data['AverageTimeOnSite'] = getstat.getAverageTimeOnSite();
-data['BounceRate'] = getstat.getBounceRate();
-
-data['ConversionRate'] = getstat.getConversionRate();
-data['Conversions'] = getstat.getConversions();
-
-data['Ctr'] = getstat.getCtr();
-data['ViewRate'] = getstat.getViewRate();
-//data['getViews'] = getstat.getstat.getViews;
-    
-
-		//Logger.log(data);
-		shortstat.push(data);
-	}
-  
-
-  var shortstat_jsn = JSON.stringify({ 
-    'stats_data':shortstat,
-    'stats_date':statdate,
-    'account_id':accountId,
-    'account_name':accountName,
-    'valute':accountCurrency
-
-  });
-
-  SendStat("daily_short_stat", shortstat_jsn);
-  
-	Logger.log(shortstat_jsn);
-	
-  GetKeyStat(today_date, statdate);
-*/ 
-  
-  
-  
   GetAdStat(base_data);
 }
 
@@ -132,14 +78,17 @@ function GetAdStat(base_data) {
    
   }
   
+  if(ads_stat.length >= 1){
+    
+    var adsstat_jsn = JSON.stringify( {base_data,'stats_data':ads_stat} );
+    //Logger.log(adsstat_jsn);
+    SendStat("daily_ads_stat", adsstat_jsn);
+    
+  }else{
+    Logger.log("Нет кликов");
+  }
 
-  var adsstat_jsn = JSON.stringify({ 
-    base_data,
-    'stats_data':ads_stat,
-  });
-
-  //Logger.log(adsstat_jsn);
-  SendStat("daily_ads_stat", adsstat_jsn);
+  
 
 }
 
