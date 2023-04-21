@@ -81,9 +81,6 @@ function GetAdStat(base_data) {
 		ads_data['cost'] = cost
    
     ads_data['conv'] = getstat.getConversions();
-
- 
-    ads_stat.push(ads_data);
     
     if( impressions >= 1 || clicks >= 1 || cost >= 0.01 ){
       ads_stat.push(ads_data);
@@ -146,8 +143,6 @@ function GetVideoAdStat(base_data, adstat_data) {
 		ads_data['cost'] = cost
     
     ads_data['conv'] = getstat.getConversions();
-  
-    ads_stat.push(ads_data);
     
     if( impressions >= 1 || clicks >= 1 || cost >= 0.01 ){
       ads_stat.push(ads_data);
