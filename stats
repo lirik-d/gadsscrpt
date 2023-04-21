@@ -1,3 +1,9 @@
+function main() {
+  scrstart()
+  
+}
+
+
 function scrstart() {
 
 	const accountIterator = AdsApp.currentAccount();
@@ -52,10 +58,82 @@ function GetAdStat(base_data) {
     ads_data['adgr_name'] = ads.getAdGroup().getName();
     ads_data['adgr_id'] = ads.getAdGroup().getId();
     
+    if (ads.isType().expandedTextAd()) {
+      var expandedTextAd = ads.asType().expandedTextAd();
+      var headlinePart1 = expandedTextAd.getHeadlinePart1();
+    }
+    
+    ads_data['ad_name'] = headlinePart1;
+    ads_data['ad_type'] = ads.getType();
+
+    ads_data['ad_id'] = ads.getId();
+    ads_data['url'] = ads.urls().getFinalUrl();
+    
+    var getstat = ads.getStatsFor(today_date,today_date);
+    
+    var impressions = getstat.getImpressions();
+    ads_data['impressions'] = impressions;
+    
+    var clicks = getstat.getClicks();
+		ads_data['clicks'] = clicks;
+    
+    var cost = getstat.getCost();
+		ads_data['cost'] = cost
+   
+    ads_data['conv'] = getstat.getConversions();
+
+ 
+    ads_stat.push(ads_data);
+    
+    if( impressions >= 1 || clicks >= 1 || cost >= 0.01 ){
+      ads_stat.push(ads_data);
+    }
+    
+ }
+  
+  var adstat_data = ads_stat;
+  GetVideoAdStat(base_data, adstat_data);
+  
+  /*
+  if(ads_stat.length >= 1){
+    
+      var adsstat_jsn = JSON.stringify( {base_data,'stats_data':ads_stat} );
+      Logger.log(adsstat_jsn);
+      SendStat("daily_ads_stat", adsstat_jsn);
+    
+  }else{
+    Logger.log("Нет кликов");
+  }
+
+  */
+
+}
+
+
+function GetVideoAdStat(base_data, adstat_data) {
+  
+  const ads_stat = [];
+  
+  var adsIterator = AdsApp.videoAds().get();
+  
+  var today_date = base_data['today_date'];
+  
+  while (adsIterator.hasNext()) {
+    
+		const ads = adsIterator.next();
+		const ads_data = {};  
+    
+    ads_data['camp_name'] = ads.getVideoCampaign().getName();
+    ads_data['camp_id'] = ads.getVideoCampaign().getId();
+    
+    ads_data['adgr_name'] = ads.getVideoAdGroup().getName();
+    ads_data['adgr_id'] = ads.getVideoAdGroup().getId();
+    
+    ads_data['ad_name'] = ads.getName();
+    ads_data['ad_type'] = ads.getType();
     ads_data['ad_id'] = ads.getId();
     ads_data['url'] = ads.urls().getFinalUrl();
    
-    
     var getstat = ads.getStatsFor(today_date,today_date);
     
     var impressions = getstat.getImpressions();
@@ -68,32 +146,36 @@ function GetAdStat(base_data) {
 		ads_data['cost'] = cost
     
     ads_data['conv'] = getstat.getConversions();
-    //ads_data['ctr'] = getstat.getCtr();
-
+  
+    ads_stat.push(ads_data);
+    
     if( impressions >= 1 || clicks >= 1 || cost >= 0.01 ){
       ads_stat.push(ads_data);
     }
     
    //Logger.log(ads_data);
    
+   
   }
   
-  if(ads_stat.length >= 1){
+    const AllAds_stat = adstat_data.concat(ads_stat);
+  
+  
+  if(AllAds_stat.length >= 1){
     
-    var adsstat_jsn = JSON.stringify( {base_data,'stats_data':ads_stat} );
-    //Logger.log(adsstat_jsn);
-    SendStat("daily_ads_stat", adsstat_jsn);
+    var Alladsstat_jsn = JSON.stringify( {base_data,'stats_data':AllAds_stat} );
+    //Logger.log(Alladsstat_jsn);
+    SendStat("daily_ads_stat", Alladsstat_jsn);
     
   }else{
     Logger.log("Нет кликов");
   }
 
-  
-
 }
 
 
 
+/*
 
 function GetKeyStat(today_date, statdate) {
   
@@ -146,6 +228,8 @@ function GetKeyStat(today_date, statdate) {
   //Logger.log(stat_jsn);
   SendStat("daily_key_stat", stat_jsn);
 }
+
+*/
 
 
 
